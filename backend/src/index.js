@@ -16,42 +16,68 @@ app.get("/test", (req, res) => {
 
 app.get("/scrap", async (req, res) => {
   try {
-    const url = req.query.url || "https://fr.wikipedia.org/wiki/Hunter_%C3%97_Hunter";
+    const url = req.query.url;
+
+    // Validation basique de l'URL
+    if (!url.startsWith("http")) {
+      return res.status(400).json({ error: "URL invalide. Elle doit commencer par http:// ou https://" });
+    }
+
+    // Récupérer les options de scraping (par défaut, on récupère tout)
+    const scrapHeadings = req.query.headings !== "false"; // True par défaut
+    const scrapParagraphs = req.query.paragraphs !== "false"; // True par défaut
+
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded" });
 
-    const data = await page.evaluate(() => {
-      const cleanText = (text) => {
-        return text
-          .replace(/\[\d+\]/g, "")
-          .replace(/\s+/g, " ")
-          .trim();
-      };
+    const data = await page.evaluate(
+      (scrapH, scrapP) => {
+        const cleanText = (text) => {
+          return text
+            .replace(/\[\d+\]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+        };
 
-      const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4")) // prendre les titres que je veux
-        .filter((h) => !h.querySelector(".mw-editsection"))
-        .filter((h) => !/sommaire/i.test(h.textContent))
-        .map((h) => ({
-          level: h.tagName,
-          text: cleanText(h.textContent),
-          // class: h.className,
-        }));
+        // Objet pour stocker les résultats
+        const result = {};
 
-      const paragraphs = Array.from(document.querySelectorAll("p"))
-        .filter((p) => {
-          // Exclure l'info box sur les pages wikis
-          const isInInfobox = p.closest(".infobox_v3") !== null;
-          return !isInInfobox && p.textContent.trim().length > 0; //
-        })
-        .map((p) => cleanText(p.textContent));
+        // Récupérer les titres si demandé
+        if (scrapH) {
+          result.headings = Array.from(document.querySelectorAll("h1, h2, h3, h4"))
+            .filter((h) => !h.querySelector(".mw-editsection"))
+            .filter((h) => !/sommaire/i.test(h.textContent))
+            .map((h) => ({
+              level: h.tagName,
+              text: cleanText(h.textContent),
+            }));
+        } else {
+          result.headings = [];
+        }
 
-      return { headings, paragraphs };
-    });
+        // Récupérer les paragraphes si demandé
+        if (scrapP) {
+          result.paragraphs = Array.from(document.querySelectorAll("p"))
+            .filter((p) => {
+              // Exclure l'info box sur les pages wikis
+              const isInInfobox = p.closest(".infobox_v3") !== null;
+              return !isInInfobox && p.textContent.trim().length > 0;
+            })
+            .map((p) => cleanText(p.textContent));
+        } else {
+          result.paragraphs = [];
+        }
+
+        return result;
+      },
+      scrapHeadings,
+      scrapParagraphs
+    );
 
     await browser.close();
 
-    res.json(data); // Envoyer les paragraphes au frontend
+    res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
