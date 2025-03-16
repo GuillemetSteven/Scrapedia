@@ -1,12 +1,14 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useScrapStore } from '../stores/scrapStore'; // Ajustez le chemin si nécessaire
 
 // Initialiser le store
 const scrapStore = useScrapStore();
+const router = useRouter();
 
 // URL saisie par l'utilisateur
-const url = ref(''); // URL par défaut
+const url = ref(scrapStore.url);
 
 // Utilisation des options du store via refs locales pour le binding
 const scrapHeadings = ref(scrapStore.scrapeOptions.headings);
@@ -27,21 +29,14 @@ const headings = computed(() => scrapStore.headings);
 const isLoading = computed(() => scrapStore.isLoading);
 const error = computed(() => scrapStore.error);
 
-// Import du router
-import { useRouter } from 'vue-router';
-const router = useRouter();
-
 // Fonction pour déclencher le scraping
 const fetchScrapData = async () => {
-  const success = await scrapStore.fetchScrapData(url.value);
-  
-  // Si le scraping a réussi et qu'on a des données, proposer d'aller à la page de détail
-  if (success && scrapStore.hasData) {
-    // Attendre un peu pour que l'utilisateur voit que le scraping a bien fonctionné
-    setTimeout(() => {
-      router.push('/detail');
-    }, 1000);
-  }
+  await scrapStore.fetchScrapData(url.value);
+};
+
+// Fonction pour aller à la page de détail
+const goToDetailPage = () => {
+  router.push('/detail');
 };
 </script>
 
@@ -94,41 +89,49 @@ const fetchScrapData = async () => {
       {{ error }}
     </div>
 
-    <!-- le nombres de paragraphes récupérés -->
-    <div v-if="paragraphs.length > 0" class="success-message">
-      {{ paragraphs.length }} paragraphes récupérés !
-    </div>
-
+    <!-- Résumé des données récupérées -->
     <div v-if="headings.length > 0" class="success-message">
       {{ headings.length }} titres récupérés !
     </div>
 
+    <div v-if="paragraphs.length > 0" class="success-message">
+      {{ paragraphs.length }} paragraphes récupérés !
+    </div>
+
+    <!-- Actions supplémentaires -->
     <div v-if="headings.length > 0 || paragraphs.length > 0" class="success-actions">
-      <button @click="router.push('/detail')" class="view-detail-btn">
+      <button @click="goToDetailPage" class="view-detail-btn">
         Voir la mise en page détaillée
       </button>
     </div>
     
+    <!-- Aperçu des données récupérées -->
     <div class="cards">
       <div v-if="headings.length > 0" class="headings-container"> 
-        <h2>Titres récupérés :</h2>
+        <h2>Titres récupérés (aperçu) :</h2>
           <ul class="headings-list">
             <li
-              v-for="(heading, index) in headings"
+              v-for="(heading, index) in headings.slice(0, 5)"
               :key="index"
               :class="'heading-' + heading.level.toLowerCase()">
               {{ heading.level }} :  <strong>{{ heading.text }}</strong>
             </li>
+            <li v-if="headings.length > 5" class="more-items">
+              + {{ headings.length - 5 }} autres titres...
+            </li>
           </ul>
       </div>
 
-      <div v-for="(paragraph, index) in paragraphs.slice(0, 5)" :key="index" class="card">
-        <h3>Paragraphe {{ index + 1 }}</h3>
-        <p>{{ paragraph }}</p>
-      </div>
-      
-      <div v-if="paragraphs.length > 5" class="more-paragraphs">
-        + {{ paragraphs.length - 5 }} autres paragraphes...
+      <div v-if="paragraphs.length > 0" class="paragraphs-container">
+        <h2>Paragraphes récupérés (aperçu) :</h2>
+        <div v-for="(paragraph, index) in paragraphs.slice(0, 3)" :key="index" class="card">
+          <h3>Paragraphe {{ index + 1 }}</h3>
+          <p>{{ paragraph.length > 150 ? paragraph.substring(0, 150) + '...' : paragraph }}</p>
+        </div>
+        
+        <div v-if="paragraphs.length > 3" class="more-paragraphs">
+          + {{ paragraphs.length - 3 }} autres paragraphes...
+        </div>
       </div>
     </div>
   </div>
@@ -249,7 +252,7 @@ input:checked + .slider:before {
 }
 
 .success-message {
-  margin: 20px 0;
+  margin: 10px 0;
   padding: 10px;
   background-color: #d4edda;
   color: #155724;
@@ -258,7 +261,7 @@ input:checked + .slider:before {
 }
 
 .error-message {
-  margin: 20px 0;
+  margin: 10px 0;
   padding: 10px;
   background-color: #f8d7da;
   color: #721c24;
@@ -266,7 +269,7 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
-.headings-container {
+.headings-container, .paragraphs-container {
   text-align: left;
   background: #f8f9fa;
   padding: 15px;
@@ -307,9 +310,10 @@ input:checked + .slider:before {
 }
 
 .cards {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  margin-top: 20px;
 }
 
 .card {
@@ -317,7 +321,7 @@ input:checked + .slider:before {
   padding: 15px;
   border-radius: 8px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  /* text-align: left; */
+  margin-bottom: 10px;
 }
 
 .success-actions {
@@ -339,13 +343,13 @@ input:checked + .slider:before {
   background-color: #218838;
 }
 
-.more-paragraphs {
-  grid-column: 1 / -1;
+.more-paragraphs, .more-items {
   text-align: center;
-  padding: 15px;
+  padding: 10px;
   background-color: #f8f9fa;
   color: #6c757d;
   border-radius: 8px;
   font-style: italic;
+  margin-top: 10px;
 }
 </style>
