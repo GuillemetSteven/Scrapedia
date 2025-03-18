@@ -28,6 +28,9 @@ onMounted(() => {
     router.push('/scrap');
   }
   
+  // Réinitialiser la position de défilement
+  window.scrollTo(0, 0);
+  
   window.addEventListener('scroll', handleScroll);
 });
 
@@ -95,12 +98,12 @@ const formattedContent = computed(() => {
 });
 
 // Extraire le nom d'hôte de l'URL pour l'affichage
-const hostname = computed(() => {
+
   // Utiliser l'URL complète pour l'affichage
 const fullUrl = computed(() => {
   return url.value;
 });
-});
+
 </script>
 
 <template>
