@@ -47,8 +47,26 @@ const confirmDelete = (index) => {
 // Fonction pour supprimer un élément de l'historique
 const deleteHistoryItem = () => {
   if (itemToDelete.value !== null) {
-    // Ajout de la fonctionnalité de suppression dans le store
-    scrapStore.removeFromHistory(itemToDelete.value);
+    // Vérifier que la méthode existe avant de l'appeler
+    // Si cette méthode n'existe pas, vous devez l'implémenter dans votre store
+    if (typeof scrapStore.removeFromHistory === 'function') {
+      scrapStore.removeFromHistory(itemToDelete.value);
+    } else {
+      // Solution alternative si la méthode n'existe pas
+      // Vous devriez modifier votre store pour ajouter cette méthode
+      console.error('La méthode removeFromHistory n\'existe pas dans le store');
+      
+      // Exemple de solution temporaire (à adapter selon votre store)
+      // Ceci est juste un exemple, vous devez adapter selon votre structure de données
+      /* 
+      const updatedHistory = [...history.value];
+      updatedHistory.splice(itemToDelete.value, 1);
+      scrapStore.$patch({
+        scrapHistory: updatedHistory
+      });
+      */
+    }
+    
     showConfirmModal.value = false;
     itemToDelete.value = null;
   }
@@ -98,8 +116,10 @@ const closeModal = () => {
         </div>
       </li>
     </ul>
-    
-    <!-- Confirmation modal -->
+  </div>
+  
+  <!-- Confirmation modal avec teleport corrigé -->
+  <teleport to="body">
     <div v-if="showConfirmModal" class="modal-overlay" @click="closeModal">
       <div class="modal-container" @click.stop>
         <div class="modal-content">
@@ -111,11 +131,78 @@ const closeModal = () => {
         </div>
       </div>
     </div>
-  </div>
+  </teleport>
 </template>
 
-<style scoped>
+<style>
+/* Styles pour le modal (déplacés hors du scope pour être accessibles après teleport) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+}
 
+.modal-container {
+  background-color: white;
+  width: 350px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content {
+  padding: 30px 25px 25px;
+  text-align: center;
+}
+
+.modal-content p {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.confirm-btn {
+  background-color: #ff5252;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #ff3333;
+}
+</style>
+
+<style scoped>
 .history-container {
   margin-top: 30px;
   background-color: #f8f9fa;
@@ -255,75 +342,6 @@ const closeModal = () => {
 }
 
 .delete-btn:hover {
-  background-color: #ff3333;
-}
-
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-}
-
-.modal-container {
-  background-color: white;
-  width: 350px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content {
-  padding: 30px 25px 25px;
-  text-align: center;
-}
-
-.modal-content p {
-  margin-bottom: 25px;
-  color: #333;
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.modal-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancel-btn {
-  background-color: #f1f1f1;
-  color: #333;
-}
-
-.cancel-btn:hover {
-  background-color: #e0e0e0;
-}
-
-.confirm-btn {
-  background-color: #ff5252;
-  color: white;
-}
-
-.confirm-btn:hover {
   background-color: #ff3333;
 }
 

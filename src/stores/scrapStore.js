@@ -122,5 +122,20 @@ export const useScrapStore = defineStore("scrap", {
       this.error = null;
       this.saveState();
     },
+    
+    // Action pour supprimer un élément de l'historique
+    removeFromHistory(index) {
+      // Vérifier que l'index est valide
+      if (index >= 0 && index < this.scrapHistory.length) {
+        // Supprimer l'élément à l'index spécifié
+        this.scrapHistory.splice(index, 1);
+        
+        // Sauvegarder dans localStorage
+        this.saveState();
+        
+        return true;
+      }
+      return false;
+    }
   },
 });

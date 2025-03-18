@@ -1,23 +1,16 @@
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { useScrapStore } from '../stores/scrapStore'; // Ajustez le chemin si nécessaire
+import { useScrapStore } from '../stores/scrapStore';
 
-// Initialiser le store
-const scrapStore = useScrapStore();
 const router = useRouter();
-
-// URL saisie par l'utilisateur
+const scrapStore = useScrapStore();
 const url = ref(scrapStore.url);
-
-// Utilisation des options du store via refs locales pour le binding
 const scrapHeadings = ref(scrapStore.scrapeOptions.headings);
 const scrapParagraphs = ref(scrapStore.scrapeOptions.paragraphs);
-
-// Timeout de chargement
 const loadingTimeout = ref(null);
+const resultsRef = ref(null); // Référence pour le scroll
 
-// Observer les changements des toggles et mettre à jour le store
 watch(scrapHeadings, (newValue) => {
   scrapStore.setScrapOptions({ headings: newValue });
 });
@@ -26,13 +19,11 @@ watch(scrapParagraphs, (newValue) => {
   scrapStore.setScrapOptions({ paragraphs: newValue });
 });
 
-// Récupérer l'état depuis le store pour l'affichage
 const paragraphs = computed(() => scrapStore.paragraphs);
 const headings = computed(() => scrapStore.headings);
 const isLoading = computed(() => scrapStore.isLoading);
 const error = computed(() => scrapStore.error);
 
-// Validation de l'URL
 const isValidUrl = (string) => {
   try {
     new URL(string);
@@ -58,140 +49,178 @@ const canSubmit = computed(() => {
   return isValidUrl(url.value) && isWikipedia.value && !isLoading.value;
 });
 
-// Fonction pour déclencher le scraping
+// Fonction pour faire défiler la page vers les résultats
+const scrollToResults = () => {
+  if (resultsRef.value) {
+    // Attendre que le DOM soit mis à jour
+    nextTick(() => {
+      resultsRef.value.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+}
+
 const fetchScrapData = async () => {
   if (!canSubmit.value) return;
   
-  // Arrêter tout timeout existant
   if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
   
-  // Configurer un timeout pour l'UI en cas de problème
   loadingTimeout.value = setTimeout(() => {
     if (isLoading.value) {
       scrapStore.setError("La requête prend plus de temps que prévu. Vérifiez votre connexion ou l'URL.");
       scrapStore.setLoading(false);
     }
-  }, 45000); // 45 secondes
+  }, 45000);
   
   await scrapStore.fetchScrapData(url.value);
   
-  // Nettoyer le timeout après la requête
   clearTimeout(loadingTimeout.value);
   loadingTimeout.value = null;
+  
+  // Scroll vers les résultats si l'extraction a réussi
+  if (headings.value.length > 0 || paragraphs.value.length > 0) {
+    scrollToResults();
+  }
 };
 
-// Fonction pour aller à la page de détail
 const goToDetailPage = () => {
   router.push('/detail');
 };
 
-// Nettoyage du timeout lorsque le composant est détruit
 onBeforeUnmount(() => {
   if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
 });
 </script>
 
 <template>
-  <div class="container">
-    <h1>Scraping de Wikipedia</h1>
-    
-    <!-- Champ pour entrer l'URL -->
-    <div class="url-input">
-      <label for="url-input">URL à scraper :</label>
-      <input 
-        id="url-input"
-        v-model="url" 
-        type="url" 
-        placeholder="Entrez l'URL d'une page Wikipedia" 
-        class="input-field"
-        :class="{'error-input': urlError}"
-      />
-      <div v-if="urlError" class="url-error-message">{{ urlError }}</div>
+  <div class="scrap-container">
+    <div class="scrap-header">
+      <h1>Extraction de contenu</h1>
+      <p class="subtitle">Extrayez facilement des titres et paragraphes de Wikipedia</p>
     </div>
     
-    <!-- Instructions d'utilisation -->
-    <div class="usage-tip">
-      <i class="info-icon">ℹ️</i> 
-      Exemple: https://fr.wikipedia.org/wiki/France
-    </div>
-    
-    <!-- Options de scraping -->
-    <div class="scraping-options">
-      <div class="toggle-option">
-        <label for="headings-toggle">Récupérer les titres</label>
-        <label class="switch">
-          <input id="headings-toggle" type="checkbox" v-model="scrapHeadings">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      
-      <div class="toggle-option">
-        <label for="paragraphs-toggle">Récupérer les paragraphes</label>
-        <label class="switch">
-          <input id="paragraphs-toggle" type="checkbox" v-model="scrapParagraphs">
-          <span class="slider round"></span>
-        </label>
-      </div>
-    </div>
-    
-    <!-- Bouton pour lancer le scraping -->
-    <button 
-      @click="fetchScrapData" 
-      class="btn" 
-      :disabled="!canSubmit || isLoading"
-      :class="{'btn-disabled': !canSubmit}"
-    >
-      <span v-if="isLoading" class="loading-spinner"></span>
-      {{ isLoading ? 'Scraping en cours...' : 'Lancer le scraping' }}
-    </button>
-
-    <!-- Message d'erreur -->
-    <div v-if="error" class="error-message">
-      <i class="error-icon">⚠️</i> {{ error }}
-    </div>
-
-    <!-- Résumé des données récupérées -->
-    <div v-if="headings.length > 0" class="success-message">
-      <i class="success-icon"></i> {{ headings.length }} titres récupérés !
-    </div>
-
-    <div v-if="paragraphs.length > 0" class="success-message">
-      <i class="success-icon"></i> {{ paragraphs.length }} paragraphes récupérés !
-    </div>
-
-    <!-- Actions supplémentaires -->
-    <div v-if="headings.length > 0 || paragraphs.length > 0" class="success-actions">
-      <button @click="goToDetailPage" class="view-detail-btn">
-        Voir la mise en page détaillée
-      </button>
-    </div>
-    
-    <!-- Aperçu des données récupérées -->
-    <div class="cards">
-      <div v-if="headings.length > 0" class="headings-container"> 
-        <h2>Titres récupérés (aperçu) :</h2>
-          <ul class="headings-list">
-            <li
-              v-for="(heading, index) in headings.slice(0, 5)"
-              :key="index"
-              :class="'heading-' + heading.level.toLowerCase()">
-              {{ heading.level }} :  <strong>{{ heading.text }}</strong>
-            </li>
-            <li v-if="headings.length > 5" class="more-items">
-              + {{ headings.length - 5 }} autres titres...
-            </li>
-          </ul>
-      </div>
-
-      <div v-if="paragraphs.length > 0" class="paragraphs-container">
-        <h2>Paragraphes récupérés (aperçu) :</h2>
-        <div v-for="(paragraph, index) in paragraphs.slice(0, 3)" :key="index" class="card">
-          <h3>Paragraphe {{ index + 1 }}</h3>
-          <p>{{ paragraph.length > 150 ? paragraph.substring(0, 150) + '...' : paragraph }}</p>
+    <div class="card url-card">
+      <div class="card-body">
+        <div class="url-input-container">
+          <label for="url-input">URL à extraire</label>
+          <div class="input-wrapper">
+            <input 
+              id="url-input"
+              v-model="url" 
+              type="url" 
+              placeholder="Entrez l'URL d'une page Wikipedia" 
+              class="url-input"
+              :class="{'error-input': urlError}"
+            />
+          </div>
+          <div v-if="urlError" class="error-message">{{ urlError }}</div>
         </div>
         
-        <div v-if="paragraphs.length > 3" class="more-paragraphs">
-          + {{ paragraphs.length - 3 }} autres paragraphes...
+        <div class="info-box">
+          <p>Exemple: https://fr.wikipedia.org/wiki/France</p>
+        </div>
+        
+        <div class="extraction-options">
+          <h3>Options d'extraction</h3>
+          <div class="options-container">
+            <div class="option-card">
+              <div class="option-content">
+                <div class="option-text">
+                  <h4>Titres</h4>
+                  <p>Extraire les titres et sous-titres</p>
+                </div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" v-model="scrapHeadings">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            
+            <div class="option-card">
+              <div class="option-content">
+                <div class="option-text">
+                  <h4>Paragraphes</h4>
+                  <p>Extraire le texte des paragraphes</p>
+                </div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" v-model="scrapParagraphs">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <button 
+          @click="fetchScrapData" 
+          class="extract-btn" 
+          :disabled="!canSubmit || isLoading"
+        >
+          {{ isLoading ? 'Extraction en cours...' : 'Extraire le contenu' }}
+        </button>
+      </div>
+    </div>
+    
+    <div v-if="error" class="error-alert">
+      <div class="alert-content">
+        <h4>Erreur lors de l'extraction</h4>
+        <p>{{ error }}</p>
+      </div>
+    </div>
+    
+    <div 
+      v-if="headings.length > 0 || paragraphs.length > 0" 
+      class="results-section"
+      ref="resultsRef"
+    >
+      <div class="results-summary">
+        <div class="card summary-card">
+          <div class="summary-content">
+            <div class="summary-item">
+              <div class="summary-text">
+                <h4>{{ headings.length }} titres extraits</h4>
+                <h4>{{ paragraphs.length }} paragraphes extraits</h4>
+              </div>
+            </div>
+          </div>
+          
+          <button @click="goToDetailPage" class="view-detail-btn">
+            Voir la mise en page détaillée
+          </button>
+        </div>
+      </div>
+      
+      <div class="preview-section">
+        <div v-if="headings.length > 0" class="card preview-card">
+          <div class="card-header">
+            <h3>Aperçu des titres</h3>
+          </div>
+          <div class="card-body">
+            <ul class="headings-list">
+              <li
+                v-for="(heading, index) in headings.slice(0, 5)"
+                :key="index">
+                <span>{{ heading.level }}: <strong>{{ heading.text }}</strong></span>
+              </li>
+            </ul>
+            <div v-if="headings.length > 5" class="more-content">
+              + {{ headings.length - 5 }} autres titres...
+            </div>
+          </div>
+        </div>
+        
+        <div v-if="paragraphs.length > 0" class="card preview-card">
+          <div class="card-header">
+            <h3>Aperçu des paragraphes</h3>
+          </div>
+          <div class="card-body">
+            <div v-for="(paragraph, index) in paragraphs.slice(0, 3)" :key="index" class="paragraph-preview">
+              <div class="paragraph-header">Paragraphe {{ index + 1 }}</div>
+              <p class="paragraph-text">{{ paragraph.length > 200 ? paragraph.substring(0, 200) + '...' : paragraph }}</p>
+            </div>
+            <div v-if="paragraphs.length > 3" class="more-content">
+              + {{ paragraphs.length - 3 }} autres paragraphes...
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -199,327 +228,347 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-@import "@/assets/base.css"; /* Utilise l'alias @ qui pointe vers src */
-
-
-.container {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  color: var(--black);
+/* Désactiver explicitement toutes les transitions pour éviter les effets de mouvement indésirables */
+* {
+  transition: none !important;
+  transform: none !important;
 }
 
-h1, h2, h3 {
-  color: var(--primary-dark);
+.scrap-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.scrap-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h1 {
+  color: #2d3748;
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #718096;
+  font-size: 16px;
+  margin: 0;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  
+  /* Explicitement désactiver les transformations et transitions */
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Neutraliser explicitement les états de survol potentiels */
+.card:hover, .option-card:hover, .view-detail-btn:hover, .extract-btn:hover {
+  transform: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+.url-card {
+  border-left: 4px solid #3182ce;
+}
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.url-input-container {
+  margin-bottom: 16px;
+}
+
+.url-input-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #4a5568;
 }
 
 .url-input {
-  margin: 20px 0;
-  text-align: left;
-}
-
-.input-field {
   width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid var(--gray);
-  border-radius: var(--border-radius);
+  padding: 12px;
   font-size: 16px;
-  transition: border-color var(--transition-speed);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
 }
 
-.input-field:focus {
+.url-input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 3px var(--primary-light);
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25);
 }
 
 .error-input {
-  border-color: var(--danger);
-  background-color: var(--danger-light);
+  border-color: #e53e3e;
+  background-color: #fff5f5;
 }
 
-.url-error-message {
-  color: var(--danger);
+.error-message {
+  margin-top: 8px;
+  color: #e53e3e;
   font-size: 14px;
-  margin-top: 5px;
 }
 
-.usage-tip {
-  background-color: var(--primary-light);
-  padding: 10px;
-  border-radius: var(--border-radius);
-  margin: 15px 0;
-  text-align: left;
+.info-box {
+  padding: 12px 16px;
+  background-color: #ebf8ff;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.info-box p {
+  margin: 0;
+  color: #2c5282;
   font-size: 14px;
-  color: var(--info);
-  border-left: 4px solid var(--primary);
 }
 
-.info-icon {
-  margin-right: 5px;
+.extraction-options {
+  margin-bottom: 24px;
 }
 
-.scraping-options {
+.extraction-options h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.options-container {
+  display: flex;
+  gap: 16px;
+}
+
+.option-card {
+  flex: 1;
   display: flex;
   justify-content: space-between;
-  margin: 20px 0;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.toggle-option {
-  display: flex;
   align-items: center;
-  gap: 10px;
+  padding: 16px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
-/* Style pour le switch toggle */
-.switch {
+.option-text h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.option-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #718096;
+}
+
+.toggle {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 48px;
+  height: 24px;
 }
 
-.switch input {
+.toggle input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.slider {
+.toggle-slider {
   position: absolute;
   cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--gray);
-  transition: var(--transition-speed);
+  background-color: #cbd5e0;
+  transition: .4s; /* Conserver cette transition pour l'interrupteur */
+  border-radius: 24px;
 }
 
-.slider:before {
+.toggle-slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: var(--white);
-  transition: var(--transition-speed);
-}
-
-input:checked + .slider {
-  background-color: var(--primary);
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px var(--primary);
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s; /* Conserver cette transition pour l'interrupteur */
   border-radius: 50%;
 }
 
-.btn {
-  background-color: var(--primary);
-  color: var(--white);
-  padding: 10px 15px;
+input:checked + .toggle-slider {
+  background-color: #3182ce;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px) !important; /* Allow this transform */
+}
+
+.extract-btn {
+  width: 100%;
+  background-color: #3182ce;
+  color: white;
   border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  margin: 15px 0;
+  padding: 14px 24px;
+  border-radius: 8px;
   font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 200px;
-  transition: background-color var(--transition-speed);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.extract-btn:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.error-alert {
+  padding: 16px;
+  background-color: #fff5f5;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border-left: 4px solid #e53e3e;
+}
+
+.alert-content h4 {
+  margin: 0 0 4px 0;
+  color: #c53030;
+  font-size: 16px;
   font-weight: 600;
 }
 
-.btn:hover {
-  background-color: var(--primary-dark);
-  box-shadow: var(--box-shadow);
+.alert-content p {
+  margin: 0;
+  color: #e53e3e;
+  font-size: 14px;
 }
 
-.btn:disabled {
-  background-color: var(--gray);
-  cursor: not-allowed;
+.results-section {
+  margin-top: 32px;
+  scroll-margin-top: 20px; /* Marge pour le scroll automatique */
 }
 
-.btn-disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.summary-card {
+  background-color: #ebf8ff;
+  border-left: 4px solid #3182ce;
 }
 
-.loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-  border: 3px solid rgba(255,255,255,.3);
-  border-radius: 50%;
-  border-top-color: var(--white);
-  animation: spin 1s ease-in-out infinite;
+.summary-content {
+  margin-bottom: 20px;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.error-message {
-  margin: 10px 0;
-  padding: 12px;
-  background-color: var(--danger-light);
-  color: var(--danger);
-  border-radius: var(--border-radius);
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  border-left: 4px solid var(--danger);
-}
-
-.success-message {
-  margin: 10px 0;
-  padding: 12px;
-  background-color: var(--cta-light);
-  color: var(--success);
-  border-radius: var(--border-radius);
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  border-left: 4px solid var(--cta);
-}
-
-.success-icon, .error-icon {
-  margin-right: 8px;
-}
-
-.success-actions {
-  margin: 20px 0;
+.summary-text h4 {
+  margin: 8px 0;
+  color: #2c5282;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .view-detail-btn {
-  background-color: var(--cta);
-  color: var(--white);
-  padding: 10px 15px;
+  background-color: #3182ce;
+  color: white;
   border: none;
-  border-radius: var(--border-radius);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color var(--transition-speed);
-  font-weight: 600;
+  width: 100%;
 }
 
-.view-detail-btn:hover {
-  background-color: var(--cta-dark);
-  box-shadow: var(--box-shadow);
-}
-
-.cards {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.headings-container, .paragraphs-container {
-  background-color: var(--secondary-light);
-  border-radius: var(--border-radius);
-  padding: 15px;
-  box-shadow: var(--box-shadow);
+.preview-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
 
 .headings-list {
-  list-style-type: none;
-  padding-left: 0;
-  text-align: left;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .headings-list li {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--gray);
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.heading-h1 {
-  font-size: 1.2em;
-  color: var(--primary-dark);
+.headings-list li:last-child {
+  border-bottom: none;
 }
 
-.heading-h2 {
-  font-size: 1.1em;
-  color: var(--primary);
+.paragraph-preview {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.heading-h3, .heading-h4, .heading-h5, .heading-h6 {
-  font-size: 1em;
-  color: var(--secondary);
+.paragraph-preview:last-child {
+  border-bottom: none;
 }
 
-.more-items {
+.paragraph-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dotted #e2e8f0;
+}
+
+.paragraph-text {
+  margin: 0;
+  color: #4a5568;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.more-content {
   text-align: center;
+  padding: 12px;
+  color: #718096;
   font-style: italic;
-  color: var(--secondary);
-  margin-top: 10px;
-  border-bottom: none !important;
+  font-size: 14px;
+  background-color: #f7fafc;
+  border-top: 1px dashed #e2e8f0;
 }
 
-.card {
-  background-color: var(--white);
-  border-radius: var(--border-radius);
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: var(--box-shadow);
-  text-align: left;
-}
-
-.card h3 {
-  margin-top: 0;
-  color: var(--primary);
-  font-size: 1.1em;
-  border-bottom: 1px solid var(--gray);
-  padding-bottom: 8px;
-}
-
-.card p {
-  margin-bottom: 0;
-  color: var(--dark-gray);
-  line-height: 1.5;
-}
-
-.more-paragraphs {
-  text-align: center;
-  font-style: italic;
-  color: var(--secondary);
-  margin-top: 10px;
-}
-
-/* Responsive design */
-@media (max-width: 600px) {
-  .scraping-options {
+@media (max-width: 768px) {
+  .options-container {
     flex-direction: column;
-    gap: 15px;
   }
   
-  .toggle-option {
-    justify-content: space-between;
-    width: 100%;
+  .preview-section {
+    grid-template-columns: 1fr;
   }
 }
-</style>
+</style>r
