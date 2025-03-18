@@ -132,7 +132,7 @@ const closeModal = () => {
           </svg>
         </div>
         <h3>Confirmation de suppression</h3>
-        <p>Êtes-vous sûr de vouloir supprimer cette génération ?</p>
+        <p>Êtes-vous sûr de vouloir supprimer cet élément ?</p>
         <div class="modal-actions">
           <button @click="closeModal" class="modal-btn cancel-btn">
             Annuler
