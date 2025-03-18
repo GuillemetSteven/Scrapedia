@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
+import "./assets/base.css";
 
 // Importation des composants pour les routes
 import Home from "./components/Home.vue"; // Page d'accueil

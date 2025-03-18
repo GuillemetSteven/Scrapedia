@@ -108,174 +108,391 @@ const hasScrapedData = scrapStore.hasData;
 </template>
 
 <style scoped>
-.home-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+
+/* Import Google Fonts - Noto Sans for clean typography */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: 'Noto Sans', 'Noto Sans JP', sans-serif;
+  background-color: #f8f9fa;
+  color: #1d3557; /* Primary deep navy color for text */
+  line-height: 1.6;
+}
+
+/* Container Styles */
+.home-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Hero Section */
 .hero-section {
   text-align: center;
-  padding: 40px 0;
-  border-radius: 8px;
-  background-color: #f8f9fa;
-  margin-bottom: 40px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 60px 30px;
+  border-radius: 12px;
+  background-color: #f5f5f0; /* Soft beige secondary color */
+  margin-bottom: 60px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, #1d3557, #2a9d8f, #1d3557);
 }
 
 h1 {
-  font-size: 2.5em;
-  color: #343a40;
-  margin-bottom: 10px;
+  font-size: 2.8em;
+  color: #1d3557;
+  margin-bottom: 16px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .subheading {
-  font-size: 1.2em;
-  color: #6c757d;
-  margin-bottom: 30px;
+  font-size: 1.3em;
+  color: #495057;
+  margin-bottom: 40px;
+  font-weight: 300;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+/* Button Styles */
 .action-buttons {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
 .primary-btn, .secondary-btn, .tertiary-btn {
-  padding: 12px 24px;
+  padding: 14px 28px;
   font-size: 1em;
-  border-radius: 5px;
+  font-weight: 500;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button hover effects with subtle expansion */
+.primary-btn:hover, .secondary-btn:hover, .tertiary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.primary-btn:active, .secondary-btn:active, .tertiary-btn:active {
+  transform: translateY(1px);
 }
 
 .primary-btn {
-  background-color: #007bff;
+  background-color: #1d3557; /* Primary deep navy */
   color: white;
 }
 
 .primary-btn:hover {
-  background-color: #0056b3;
+  background-color: #152638;
 }
 
 .secondary-btn {
-  background-color: #28a745;
+  background-color: #2a9d8f; /* Teal call-to-action */
   color: white;
 }
 
 .secondary-btn:hover {
-  background-color: #218838;
+  background-color: #208b7f;
 }
 
 .secondary-btn:disabled {
-  background-color: #a7c9b4;
+  background-color: #a2d5cf;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .tertiary-btn {
-  background-color: #6c757d;
-  color: white;
+  background-color: #e9ecef;
+  color: #1d3557;
+  border: 1px solid #dee2e6;
 }
 
 .tertiary-btn:hover {
-  background-color: #5a6268;
+  background-color: #dee2e6;
 }
 
+/* Workflow Section */
 .workflow-section {
-  margin-bottom: 40px;
+  margin-bottom: 70px;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 30px;
-  color: #343a40;
+  margin-bottom: 40px;
+  color: #1d3557;
+  font-size: 2.2em;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: #2a9d8f;
 }
 
 .workflow-steps {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  gap: 24px;
+  margin-top: 30px;
 }
 
 .workflow-step {
   display: flex;
-  align-items: flex-start;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
   background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.workflow-step:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .step-number {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  background-color: #007bff;
+  width: 50px;
+  height: 50px;
+  background-color: #1d3557;
   color: white;
   border-radius: 50%;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1.2em;
+  margin-bottom: 20px;
 }
 
 .step-content {
-  flex: 1;
+  text-align: center;
+}
+
+.step-content h3 {
+  color: #1d3557;
+  margin-bottom: 15px;
+  font-size: 1.4em;
+}
+
+.step-content p {
+  color: #495057;
+  font-size: 0.95em;
+  line-height: 1.6;
 }
 
 .workflow-connector {
-  height: 20px;
-  width: 2px;
-  background-color: #dee2e6;
-  margin-left: 20px;
+  display: none;
 }
 
+/* Features Section */
 .features-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-bottom: 60px;
 }
 
 .feature-card {
   background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background-color: #2a9d8f;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
 }
 
 .feature-card h3 {
-  color: #343a40;
-  margin-bottom: 10px;
+  color: #1d3557;
+  margin-bottom: 15px;
+  font-size: 1.3em;
+  font-weight: 600;
 }
 
 .feature-card p {
-  color: #6c757d;
+  color: #495057;
+  font-size: 0.95em;
 }
 
-@media (min-width: 768px) {
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
   .workflow-steps {
-    flex-direction: row;
-    align-items: stretch;
-  }
-  
-  .workflow-step {
     flex-direction: column;
-    flex: 1;
   }
   
-  .step-number {
-    margin: 0 auto 15px;
+  h1 {
+    font-size: 2.3em;
   }
   
-  .workflow-connector {
-    height: 2px;
-    width: 20px;
-    margin: auto 0;
+  .subheading {
+    font-size: 1.1em;
   }
+  
+  .hero-section {
+    padding: 40px 20px;
+  }
+  
+  .primary-btn, .secondary-btn, .tertiary-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+/* ScrapHistory Component Styling */
+.history-section {
+  margin-top: 60px;
+}
+
+.history-section h2 {
+  margin-bottom: 30px;
+}
+
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.history-item {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.history-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.history-date {
+  font-size: 0.85em;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.history-title {
+  font-weight: 600;
+  color: #1d3557;
+  margin-bottom: 10px;
+}
+
+.history-details {
+  color: #495057;
+  font-size: 0.9em;
+}
+
+.load-more-btn {
+  background-color: transparent;
+  border: 1px solid #1d3557;
+  color: #1d3557;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-top: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.load-more-btn:hover {
+  background-color: #1d3557;
+  color: white;
+}
+
+/* Subtle animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.home-container > * {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.hero-section {
+  animation-delay: 0.1s;
+}
+
+.workflow-section {
+  animation-delay: 0.2s;
+}
+
+.features-section {
+  animation-delay: 0.3s;
+}
+
+/* For focus accessibility */
+button:focus, a:focus {
+  outline: 2px solid #2a9d8f;
+  outline-offset: 2px;
 }
 </style>

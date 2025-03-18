@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useLlmStore } from '../stores/llmStore'; // Ajustez le chemin si nécessaire
+import { useLlmStore } from '../stores/llmStore';
 
 const route = useRoute();
 const router = useRouter();

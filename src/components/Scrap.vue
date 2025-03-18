@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useScrapStore } from '../stores/scrapStore'; // Ajustez le chemin si nécessaire
 
@@ -13,6 +13,9 @@ const url = ref(scrapStore.url);
 // Utilisation des options du store via refs locales pour le binding
 const scrapHeadings = ref(scrapStore.scrapeOptions.headings);
 const scrapParagraphs = ref(scrapStore.scrapeOptions.paragraphs);
+
+// Timeout de chargement
+const loadingTimeout = ref(null);
 
 // Observer les changements des toggles et mettre à jour le store
 watch(scrapHeadings, (newValue) => {
@@ -29,20 +32,68 @@ const headings = computed(() => scrapStore.headings);
 const isLoading = computed(() => scrapStore.isLoading);
 const error = computed(() => scrapStore.error);
 
+// Validation de l'URL
+const isValidUrl = (string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+const isWikipedia = computed(() => {
+  if (!url.value) return false;
+  return url.value.includes('wikipedia.org');
+});
+
+const urlError = computed(() => {
+  if (!url.value || url.value.trim() === '') return '';
+  if (!isValidUrl(url.value)) return 'URL invalide. Assurez-vous qu\'elle commence par http:// ou https://';
+  if (!isWikipedia.value) return 'Cette application est optimisée pour les pages Wikipedia uniquement.';
+  return '';
+});
+
+const canSubmit = computed(() => {
+  return isValidUrl(url.value) && isWikipedia.value && !isLoading.value;
+});
+
 // Fonction pour déclencher le scraping
 const fetchScrapData = async () => {
+  if (!canSubmit.value) return;
+  
+  // Arrêter tout timeout existant
+  if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
+  
+  // Configurer un timeout pour l'UI en cas de problème
+  loadingTimeout.value = setTimeout(() => {
+    if (isLoading.value) {
+      scrapStore.setError("La requête prend plus de temps que prévu. Vérifiez votre connexion ou l'URL.");
+      scrapStore.setLoading(false);
+    }
+  }, 45000); // 45 secondes
+  
   await scrapStore.fetchScrapData(url.value);
+  
+  // Nettoyer le timeout après la requête
+  clearTimeout(loadingTimeout.value);
+  loadingTimeout.value = null;
 };
 
 // Fonction pour aller à la page de détail
 const goToDetailPage = () => {
   router.push('/detail');
 };
+
+// Nettoyage du timeout lorsque le composant est détruit
+onBeforeUnmount(() => {
+  if (loadingTimeout.value) clearTimeout(loadingTimeout.value);
+});
 </script>
 
 <template>
   <div class="container">
-    <h1>Scraping de sites web</h1>
+    <h1>Scraping de Wikipedia</h1>
     
     <!-- Champ pour entrer l'URL -->
     <div class="url-input">
@@ -51,9 +102,17 @@ const goToDetailPage = () => {
         id="url-input"
         v-model="url" 
         type="url" 
-        placeholder="Entrez l'URL du site à scraper" 
+        placeholder="Entrez l'URL d'une page Wikipedia" 
         class="input-field"
+        :class="{'error-input': urlError}"
       />
+      <div v-if="urlError" class="url-error-message">{{ urlError }}</div>
+    </div>
+    
+    <!-- Instructions d'utilisation -->
+    <div class="usage-tip">
+      <i class="info-icon">ℹ️</i> 
+      Exemple: https://fr.wikipedia.org/wiki/France
     </div>
     
     <!-- Options de scraping -->
@@ -79,23 +138,25 @@ const goToDetailPage = () => {
     <button 
       @click="fetchScrapData" 
       class="btn" 
-      :disabled="isLoading"
+      :disabled="!canSubmit || isLoading"
+      :class="{'btn-disabled': !canSubmit}"
     >
+      <span v-if="isLoading" class="loading-spinner"></span>
       {{ isLoading ? 'Scraping en cours...' : 'Lancer le scraping' }}
     </button>
 
     <!-- Message d'erreur -->
     <div v-if="error" class="error-message">
-      {{ error }}
+      <i class="error-icon">⚠️</i> {{ error }}
     </div>
 
     <!-- Résumé des données récupérées -->
     <div v-if="headings.length > 0" class="success-message">
-      {{ headings.length }} titres récupérés !
+      <i class="success-icon"></i> {{ headings.length }} titres récupérés !
     </div>
 
     <div v-if="paragraphs.length > 0" class="success-message">
-      {{ paragraphs.length }} paragraphes récupérés !
+      <i class="success-icon"></i> {{ paragraphs.length }} paragraphes récupérés !
     </div>
 
     <!-- Actions supplémentaires -->
@@ -138,12 +199,20 @@ const goToDetailPage = () => {
 </template>
 
 <style scoped>
+@import "@/assets/base.css"; /* Utilise l'alias @ qui pointe vers src */
+
+
 .container {
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
+  color: var(--black);
+}
+
+h1, h2, h3 {
+  color: var(--primary-dark);
 }
 
 .url-input {
@@ -155,9 +224,42 @@ const goToDetailPage = () => {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 1px solid var(--gray);
+  border-radius: var(--border-radius);
   font-size: 16px;
+  transition: border-color var(--transition-speed);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 3px var(--primary-light);
+}
+
+.error-input {
+  border-color: var(--danger);
+  background-color: var(--danger-light);
+}
+
+.url-error-message {
+  color: var(--danger);
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.usage-tip {
+  background-color: var(--primary-light);
+  padding: 10px;
+  border-radius: var(--border-radius);
+  margin: 15px 0;
+  text-align: left;
+  font-size: 14px;
+  color: var(--info);
+  border-left: 4px solid var(--primary);
+}
+
+.info-icon {
+  margin-right: 5px;
 }
 
 .scraping-options {
@@ -196,8 +298,8 @@ const goToDetailPage = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
+  background-color: var(--gray);
+  transition: var(--transition-speed);
 }
 
 .slider:before {
@@ -207,16 +309,16 @@ const goToDetailPage = () => {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
-  transition: .4s;
+  background-color: var(--white);
+  transition: var(--transition-speed);
 }
 
 input:checked + .slider {
-  background-color: #007bff;
+  background-color: var(--primary);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #007bff;
+  box-shadow: 0 0 1px var(--primary);
 }
 
 input:checked + .slider:before {
@@ -232,96 +334,78 @@ input:checked + .slider:before {
 }
 
 .btn {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary);
+  color: var(--white);
   padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   margin: 15px 0;
   font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+  transition: background-color var(--transition-speed);
+  font-weight: 600;
 }
 
 .btn:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-dark);
+  box-shadow: var(--box-shadow);
 }
 
 .btn:disabled {
-  background-color: #cccccc;
+  background-color: var(--gray);
   cursor: not-allowed;
 }
 
-.success-message {
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #d4edda;
-  color: #155724;
-  border-radius: 4px;
-  font-weight: bold;
+.btn-disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: var(--white);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .error-message {
   margin: 10px 0;
-  padding: 10px;
-  background-color: #f8d7da;
-  color: #721c24;
-  border-radius: 4px;
+  padding: 12px;
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border-radius: var(--border-radius);
   font-weight: bold;
-}
-
-.headings-container, .paragraphs-container {
-  text-align: left;
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.headings-list {
-  list-style: none;
-  padding: 0;
-}
-
-.heading-h1 {
-  font-size: 22px;
-  color: #007bff;
-  font-weight: bold;
-  margin-top: 15px;
-}
-
-.heading-h2 {
-  font-size: 20px;
-  color: #17a2b8;
-  font-weight: bold;
-  margin-left: 10px;
-}
-
-.heading-h3 {
-  font-size: 18px;
-  color: #28a745;
-  margin-left: 20px;
-}
-
-.heading-h4 {
-  font-size: 16px;
-  color: #6c757d;
-  margin-left: 30px;
-}
-
-.cards {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: 20px;
+  align-items: center;
+  border-left: 4px solid var(--danger);
 }
 
-.card {
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
+.success-message {
+  margin: 10px 0;
+  padding: 12px;
+  background-color: var(--cta-light);
+  color: var(--success);
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  border-left: 4px solid var(--cta);
+}
+
+.success-icon, .error-icon {
+  margin-right: 8px;
 }
 
 .success-actions {
@@ -329,27 +413,113 @@ input:checked + .slider:before {
 }
 
 .view-detail-btn {
-  background-color: #28a745;
-  color: white;
+  background-color: var(--cta);
+  color: var(--white);
   padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-speed);
+  font-weight: 600;
 }
 
 .view-detail-btn:hover {
-  background-color: #218838;
+  background-color: var(--cta-dark);
+  box-shadow: var(--box-shadow);
 }
 
-.more-paragraphs, .more-items {
+.cards {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.headings-container, .paragraphs-container {
+  background-color: var(--secondary-light);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  box-shadow: var(--box-shadow);
+}
+
+.headings-list {
+  list-style-type: none;
+  padding-left: 0;
+  text-align: left;
+}
+
+.headings-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray);
+}
+
+.heading-h1 {
+  font-size: 1.2em;
+  color: var(--primary-dark);
+}
+
+.heading-h2 {
+  font-size: 1.1em;
+  color: var(--primary);
+}
+
+.heading-h3, .heading-h4, .heading-h5, .heading-h6 {
+  font-size: 1em;
+  color: var(--secondary);
+}
+
+.more-items {
   text-align: center;
-  padding: 10px;
-  background-color: #f8f9fa;
-  color: #6c757d;
-  border-radius: 8px;
   font-style: italic;
+  color: var(--secondary);
   margin-top: 10px;
+  border-bottom: none !important;
+}
+
+.card {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: var(--box-shadow);
+  text-align: left;
+}
+
+.card h3 {
+  margin-top: 0;
+  color: var(--primary);
+  font-size: 1.1em;
+  border-bottom: 1px solid var(--gray);
+  padding-bottom: 8px;
+}
+
+.card p {
+  margin-bottom: 0;
+  color: var(--dark-gray);
+  line-height: 1.5;
+}
+
+.more-paragraphs {
+  text-align: center;
+  font-style: italic;
+  color: var(--secondary);
+  margin-top: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .scraping-options {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .toggle-option {
+    justify-content: space-between;
+    width: 100%;
+  }
 }
 </style>

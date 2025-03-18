@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLlmStore } from '../stores/llmStore'; // Ajustez le chemin si nécessaire
 
@@ -9,6 +9,10 @@ const llmStore = useLlmStore();
 // Récupérer les générations depuis le store
 const generations = computed(() => llmStore.generations);
 const hasGenerations = computed(() => llmStore.hasGenerations);
+
+// Variables pour la modal de confirmation
+const showConfirmModal = ref(false);
+const generationToDelete = ref(null);
 
 // Fonction pour formater une date
 const formatDate = (dateString) => {
@@ -22,14 +26,26 @@ const viewGeneration = (generationId) => {
   router.push(`/result/${generationId}`);
 };
 
-// Fonction pour supprimer une génération
-const deleteGeneration = (event, generationId) => {
+// Fonction pour ouvrir la modal de confirmation de suppression
+const confirmDelete = (event, generationId) => {
   // Empêcher la propagation pour éviter de déclencher viewGeneration
   event.stopPropagation();
-  
-  if (confirm('Êtes-vous sûr de vouloir supprimer cette génération ?')) {
-    llmStore.deleteGeneration(generationId);
+  generationToDelete.value = generationId;
+  showConfirmModal.value = true;
+};
+
+// Fonction pour supprimer une génération
+const deleteGeneration = () => {
+  if (generationToDelete.value !== null) {
+    llmStore.deleteGeneration(generationToDelete.value);
+    closeModal();
   }
+};
+
+// Fonction pour fermer la modal
+const closeModal = () => {
+  showConfirmModal.value = false;
+  generationToDelete.value = null;
 };
 
 // Fonction pour extraire le nom d'hôte d'une URL
@@ -94,10 +110,23 @@ const goToGeneratePage = () => {
           </button>
           <button 
             class="delete-btn" 
-            @click="deleteGeneration($event, generation.id)"
+            @click="confirmDelete($event, generation.id)"
           >
             Supprimer
           </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Confirmation modal -->
+    <div v-if="showConfirmModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-container" @click.stop>
+        <div class="modal-content">
+          <p>Êtes-vous sûr de vouloir supprimer cette génération ?</p>
+          <div class="modal-actions">
+            <button @click="closeModal" class="modal-btn cancel-btn">Annuler</button>
+            <button @click="deleteGeneration" class="modal-btn confirm-btn">Confirmer</button>
+          </div>
         </div>
       </div>
     </div>
@@ -247,6 +276,75 @@ h1 {
 }
 
 .delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-container {
+  background-color: white;
+  width: 350px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content {
+  padding: 30px 25px 25px;
+  text-align: center;
+}
+
+.modal-content p {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.confirm-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.confirm-btn:hover {
   background-color: #c82333;
 }
 

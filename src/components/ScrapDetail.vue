@@ -75,9 +75,7 @@ const formattedContent = computed(() => {
 <template>
   <div class="detail-container">
     <div class="detail-header">
-      <button @click="goBack" class="back-btn">
-        &larr; Retour
-      </button>
+      <button @click="goBack" class="back-btn"> Retour </button>
       <h1>Contenu de {{ url }}</h1>
     </div>
     

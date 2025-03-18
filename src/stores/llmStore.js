@@ -25,7 +25,7 @@ export const useLlmStore = defineStore("llm", {
     ollamaConfig: {
       baseUrl: "http://localhost:11434",
       // Utilisez le nom complet du modèle tel qu'indiqué dans ollama list
-      model: "deepseek-r1:latest",
+      model: "deepseek-r1:latest", // phi:latest
     },
   }),
 
