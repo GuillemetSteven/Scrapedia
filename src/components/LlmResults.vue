@@ -148,7 +148,7 @@ const goToGeneratePage = () => {
             Supprimer
           </button>
         </div>
-      </div>
+      </div>  
     </div>
   </div>
   
@@ -206,7 +206,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #3182ce;
+  background-color: #1d3557;
   color: white;
   border: none;
   padding: 10px 16px;
@@ -369,7 +369,7 @@ h1 {
 }
 
 .view-btn {
-  background-color: #4299e1;
+  background-color: #1d3557;
   color: white;
 }
 

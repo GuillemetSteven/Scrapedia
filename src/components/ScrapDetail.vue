@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useScrapStore } from '../stores/scrapStore';
 
@@ -147,8 +147,7 @@ const fullUrl = computed(() => {
       v-show="showScrollButton" 
       @click="scrollToTop" 
       class="scroll-top-btn"
-      aria-label="Retour en haut"
-    >
+      aria-label="Retour en haut">
       <svg xmlns="http://www.w3.org/2000/svg" class="arrow-up-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 19V5M5 12l7-7 7 7"></path>
       </svg>
@@ -157,6 +156,7 @@ const fullUrl = computed(() => {
 </template>
 
 <style scoped>
+
 .detail-container {
   max-width: 900px;
   margin: 0 auto;
@@ -179,7 +179,7 @@ const fullUrl = computed(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #3182ce;
+  background-color: #1d3557;
   color: white;
   border: none;
   padding: 10px 16px;
@@ -188,6 +188,12 @@ const fullUrl = computed(() => {
   font-size: 15px;
   font-weight: 500;
   flex-shrink: 0;
+}
+
+.back-btn:hover {
+  background-color: #152638;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(29, 53, 87, 0.2);
 }
 
 .back-icon {
@@ -327,6 +333,11 @@ h1 {
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   z-index: 999;
+}
+
+.scroll-top-btn:hover {
+  background-color: #2a9d8f;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .arrow-up-icon {

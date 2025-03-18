@@ -25,7 +25,7 @@ export const useLlmStore = defineStore("llm", {
     ollamaConfig: {
       baseUrl: "http://localhost:11434",
       // Utilisez le nom complet du modèle tel qu'indiqué dans ollama list
-      model: "phi:latest", // phi:latest
+      model: "deepseek-r1", // phi:latest || deepseek-r1:latest
     },
   }),
 
@@ -92,7 +92,7 @@ Génère une réponse structurée et formatée en HTML simple pour faciliter l'a
         `;
 
         // Appel à l'API Ollama avec l'endpoint /api/generate
-        console.log(`Tentative avec l'endpoint /api/generate et le modèle ${this.ollamaConfig.model}...`);
+        console.log(` 🔍 Tentative avec l'endpoint /api/generate et le modèle ${this.ollamaConfig.model}...`);
         const response = await axios.post(
           `${this.ollamaConfig.baseUrl}/api/generate`,
           {
