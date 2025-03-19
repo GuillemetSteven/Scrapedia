@@ -120,38 +120,39 @@ npm run dev
 
 ### 1. Intégration avec Ollama
 
-**Problème**: L'intégration avec Ollama a présenté des défis en termes de gestion des erreurs et de configuration. J'ai du essayer plusieurs modèles et vérifier comment ça fonctionne.
+**Problème**: L'intégration d'un LLM a été un véritable défi. À l'origine, je comptais simplement utiliser OpenAI ou un autre LLM pour générer une clé API et effectuer mes appels. Cependant, le coût de ces services a compliqué les choses !
 
-**Solution**: Mise en place d'un système robuste de détection des erreurs spécifiques (modèle non trouvé, serveur non démarré) et affichage de messages d'erreur pertinents pour aider l'utilisateur.
+**Solution**: J’ai donc dû chercher une solution à contrecœur et installer un LLM en local pour effectuer mes appels. Je me suis finalement tourné vers Ollama, sans doute l’un des meilleurs dans ce domaine. Cependant, une fois le texte extrait, la fiabilité de la réponse dépend fortement du modèle utilisé.
 
 ### 2. Structuration des données scrapées
 
-**Problème**: La mise en relation des titres et paragraphes extraits de Wikipedia était difficile.
+**Problème**: La mise en relation des titres et paragraphes extraits de Wikipedia pas si simple que ça au final.
 
-**Solution**: Création d'un algorithme qui associe intelligemment les paragraphes aux titres correspondants dans le composant ScrapDetail.vue, pour créer une structure hiérarchique cohérente.  
-Plusieurs vidéos ont été regardés dont :
+**Solution**: Pour cette partie, j’ai visionné plusieurs vidéos afin de mieux comprendre le fonctionnement général du scraping et mis en place des solutions simples. Cependant, lorsque j’ai voulu contourner certaines classes et créer un parsing efficace, j’ai dû faire appel à Claude Sonnet pour m’aider.
+Ces deux vidéos ont été très utiles :
 https://www.youtube.com/watch?v=CosPILI0qrw & https://www.youtube.com/watch?v=ssRo5nVOvrQ
 
 ### 3. Persistence des données
 
 **Problème**: Garder l'historique des données scrapées et des générations entre les sessions.
 
-**Solution**: Utilisation de localStorage avec une structure claire pour sauvegarder les états Pinia, avec une logique de chargement au démarrage de l'application. Pour ce projet j'ai pensé qu'implémenter firebase serait trop ambitieux, alors j'ai opté pour utilisé localstorage
+**Solution**: J’ai structuré l’utilisation de localStorage de manière claire pour sauvegarder les états Pinia, avec une logique de chargement au démarrage de l’application. Pour ce projet, j’ai estimé que l’implémentation de Firebase serait trop ambitieuse, alors j’ai préféré opter pour localStorage.
 
 ### 4. Gestion des requêtes asynchrones
 
-**Problème**: Gestion des états de chargement et des erreurs lors des opérations asynchrones.
+**Problème** : Gestion du chargement et des erreurs lors des opérations asynchrones.
 
-**Solution**: Mise en place d'un système cohérent avec des états isLoading et error dans les stores, ainsi que des timeouts de sécurité pour détecter les requêtes trop longues.
+**Solution** : Ajout des états isLoading et error dans les stores, avec des timeouts pour éviter les requêtes trop longues.
 
 ## Améliorations futures
 
-- Ajouter la possibilité de scraper d'autres sites que Wikipedia
 - Possibilité d'avoir plusieurs pages wikipedia avant de tout scraper
+- Ajouter la possibilité de scraper d'autres sites que Wikipedia
 - Implémenter un système de tags pour organiser les générations
 - Ajouter des options d'export (PDF, Markdown, etc.)
 - Améliorer les suggestions de prompts avec un système d'apprentissage basé sur les prompts utilisés
 - Ajouter un mode hors-ligne avec synchronisation ultérieure
+- etc ...
 
 ---
 
