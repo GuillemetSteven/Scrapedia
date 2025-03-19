@@ -95,7 +95,7 @@ Si vous rencontrez des problèmes avec Ollama, voici quelques commandes utiles:
 ollama list
 ```
 
-#### Vérifier l'état du serveur Ollama
+#### Vérifier l'état Ollama
 
 ```bash
 curl http://localhost:11434/api/tags
