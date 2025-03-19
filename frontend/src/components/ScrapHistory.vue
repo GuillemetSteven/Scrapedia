@@ -243,6 +243,10 @@ const closeModal = () => {
   gap: 6px;
 }
 
+.timestamp{
+  background-color: #bcc2ca48;
+}
+
 .elements-count {
   color: #3182ce;
 }

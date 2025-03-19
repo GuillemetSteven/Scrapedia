@@ -1,16 +1,14 @@
 # Web Scraper & Générateur IA
 
-Ce projet est une application web développée avec Vue.js permettant d'extraire des données de sites Wikipedia et de générer du contenu grâce à l'intelligence artificielle.
-
-préciser que je me suis aidé d'un LLM pour pouvoir le réaliser! et que le but ce serait
-de s'en servir comme base ici, de reproduire les fonctionnaliées petit à petit et d'implémenter de nouvelles choses
+Ce projet est une application web développée avec Vue.js permettant d'extraire des données de Wikipedia et de générer du nouveau contenu à partir de ces informations via un serveur Ollama local.
+Pour dire vrai, Ce projet a été essentiellement développé avec l'aide de Claude Sonnet. Toutefois, l’objectif est de reproduire progressivement toutes les fonctionnalités essentielles à partir de cette base technique, que j’ai déjà explorée pendant de nombreuses heures, tout en ajoutant de nouvelles fonctionnalités et améliorations à l’avenir.
 
 ## Objectif du projet
 
 L'objectif principal de ce projet est de créer une application web qui:
 
-1. Extrait (scrape) des données depuis des pages Wikipedia
-2. Utilise ces données comme base pour générer de nouveaux contenus via un modèle d'IA
+1. Extrait (scrape) des données depuis des pages Wikipédia
+2. Utiliser ces données comme base pour générer de nouveaux contenus via un modèle d'IA local
 3. Offre une expérience utilisateur fluide et intuitive
 4. Permet de conserver un historique des extractions et générations
 
@@ -20,19 +18,19 @@ L'objectif principal de ce projet est de créer une application web qui:
 
 - Extraction ciblée des titres et paragraphes de pages Wikipedia
 - Affichage visuel des données extraites
-- Historique des extractions précédentes (sur la page / )
+- Historique des extractions précédentes
 - Interface de détail pour visualiser la structuration des données extraites
 
 ### Génération de contenu avec IA
 
-- Utilisation du modèle Phi via Ollama pour générer du contenu
+- Utilisation du modèle Phi (ou autres modèles) via Ollama pour générer du contenu
 - Prompts personnalisables avec suggestions
 - Sauvegarde automatique des générations
 - Affichage formaté des résultats générés
 
 ### Interface utilisateur
 
-- Design responsive et moderne
+- Design responsive
 - Navigation intuitive entre les différentes fonctionnalités
 - Aperçus visuels des données extraites et générées
 - Gestion complète des états de chargement et des erreurs
@@ -59,13 +57,13 @@ L'objectif principal de ce projet est de créer une application web qui:
 #### Windows
 
 1. Téléchargez et installez Ollama depuis [https://ollama.com/download/windows](https://ollama.com/download/windows)
-2. Ouvrez une invite de commande et exécutez: `ollama pull phi`
+2. Ouvrez une invite de commande et exécutez: `ollama pull phi` ou modèle de votre choix
 3. Vérifiez que Ollama est en cours d'exécution (icône dans la zone de notification)
 
 #### macOS
 
 1. Téléchargez et installez Ollama depuis [https://ollama.com/download/mac](https://ollama.com/download/mac)
-2. Ouvrez un Terminal et exécutez: `ollama pull phi`
+2. Ouvrez un Terminal et exécutez: `ollama pull phi` ou modèle de votre choix
 3. Vérifiez que Ollama est en cours d'exécution (icône dans la barre de menu)
 
 ### Installation du serveur backend pour le scraping
@@ -82,10 +80,16 @@ cd backend
 npm install express puppeteer cors
 ```
 
-3. Démarrez le serveur
+3. Naviguez vers le dossier `backend\src` du projet
 
 ```bash
-npm start
+cd backend\src\
+```
+
+4. Démarrez le serveur
+
+```bash
+ node .\index.js
 ```
 
 Le serveur sera disponible sur `http://localhost:3000`
@@ -95,7 +99,7 @@ Le serveur sera disponible sur `http://localhost:3000`
 1. Dans un autre terminal, naviguez vers la racine du projet
 
 ```bash
-cd frontend
+cd ..\frontend\
 ```
 
 2. Installez les dépendances
@@ -125,7 +129,8 @@ npm run dev
 **Problème**: La mise en relation des titres et paragraphes extraits de Wikipedia était difficile.
 
 **Solution**: Création d'un algorithme qui associe intelligemment les paragraphes aux titres correspondants dans le composant ScrapDetail.vue, pour créer une structure hiérarchique cohérente.  
-Plusieurs vidéos ont été regardés dont : https://www.youtube.com/watch?v=CosPILI0qrw
+Plusieurs vidéos ont été regardés dont :
+https://www.youtube.com/watch?v=CosPILI0qrw & https://www.youtube.com/watch?v=ssRo5nVOvrQ
 
 ### 3. Persistence des données
 

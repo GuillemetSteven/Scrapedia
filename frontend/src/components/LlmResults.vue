@@ -57,6 +57,21 @@ const getHostname = (url) => {
   }
 };
 
+// Fonction pour extraire le dernier segment de l'URL (après le dernier "/")
+const getLastUrlSegment = (url) => {
+  try {
+    // Supprimer le slash final s'il existe
+    const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+    // Récupérer la partie après le dernier "/"
+    const segments = cleanUrl.split('/');
+    const lastSegment = segments[segments.length - 1];
+    // Décoder les caractères d'URL et remplacer les underscores par des espaces
+    return decodeURIComponent(lastSegment).replace(/_/g, ' ');
+  } catch (e) {
+    return 'Contenu généré';
+  }
+};
+
 // Fonction pour aller à la page de génération
 const goToGeneratePage = () => {
   router.push('/generate');
@@ -100,7 +115,7 @@ const goToGeneratePage = () => {
       >
         <div class="result-details">
           <div class="result-title">
-            {{ generation.generatedContent.title || `Génération pour ${getHostname(generation.url)}` }}
+           {{ "Contenu généré pour :" }} {{ getLastUrlSegment(generation.url) }}
           </div>
           <div class="result-metadata">
             <div class="result-timestamp">
@@ -110,19 +125,20 @@ const goToGeneratePage = () => {
               </svg>
               {{ formatDate(generation.timestamp) }}
             </div>
-            <div class="result-url">
-              <svg xmlns="http://www.w3.org/2000/svg" class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-              </svg>
-              {{ getHostname(generation.url) }}
-            </div>
+            <!-- Removed the URL display from metadata since it's in the title -->
           </div>
           <div class="result-prompt">
             <svg xmlns="http://www.w3.org/2000/svg" class="prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
             "{{ generation.prompt }}"
+          </div>
+          <div class="result-url">
+            <svg xmlns="http://www.w3.org/2000/svg" class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            {{ generation.url }}
           </div>
         </div>
         
@@ -313,12 +329,13 @@ h1 {
   margin-bottom: 12px;
 }
 
-.result-timestamp, .result-url {
+.result-timestamp {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #718096;
+  color: #2b2a2aaf; 
+  background-color: #bcc2ca48;
 }
 
 .time-icon, .link-icon, .prompt-icon {
@@ -332,9 +349,9 @@ h1 {
   align-items: flex-start;
   gap: 6px;
   font-size: 15px;
-  color: #4a5568;
+  color: #38a169; /* Changed prompt color to green */
   font-style: italic;
-  margin-bottom: 5px;
+  margin-bottom: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,6 +362,16 @@ h1 {
 .result-prompt .prompt-icon {
   margin-top: 2px;
   flex-shrink: 0;
+  stroke: #38a169; /* Match icon color with text */
+}
+
+.result-url {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #3182ce; /* Blue for URL */
+  word-break: break-all;
 }
 
 .result-actions {

@@ -1,5 +1,3 @@
-// import puppeteer from 'puppeteer';
-
 // https://www.youtube.com/watch?v=ssRo5nVOvrQ
 const puppeteer = require("puppeteer");
 const express = require("express");
