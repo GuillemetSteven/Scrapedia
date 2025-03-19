@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router';
 import { useLlmStore } from '../stores/llmStore';
 import { useScrapStore } from '../stores/scrapStore';
-import ScrapHistory from './ScrapHistory.vue'; // Ajustez le chemin si nécessaire
+import ScrapHistory from './ScrapHistory.vue';
 
 const router = useRouter();
 const scrapStore = useScrapStore();
@@ -109,10 +109,10 @@ const hasScrapedData = scrapStore.hasData;
 
 <style scoped>
 
-/* Import Google Fonts - Noto Sans for clean typography */
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
 
-/* Reset and Base Styles */
+
 * {
   margin: 0;
   padding: 0;
@@ -122,23 +122,23 @@ const hasScrapedData = scrapStore.hasData;
 body {
   font-family: 'Noto Sans', 'Noto Sans JP', sans-serif;
   background-color: #f8f9fa;
-  color: #1d3557; /* Primary deep navy color for text */
+  color: #1d3557; 
   line-height: 1.6;
 }
 
-/* Container Styles */
+
 .home-container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 40px 20px;
 }
 
-/* Hero Section */
+
 .hero-section {
   text-align: center;
   padding: 60px 30px;
   border-radius: 12px;
-  background-color: #f5f5f0; /* Soft beige secondary color */
+  background-color: #f5f5f0; 
   margin-bottom: 60px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   position: relative;
@@ -194,7 +194,7 @@ h1 {
   overflow: hidden;
 }
 
-/* Button hover effects with subtle expansion */
+
 .primary-btn:hover, .secondary-btn:hover, .tertiary-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
@@ -239,7 +239,7 @@ h1 {
   background-color: #dee2e6;
 }
 
-/* Workflow Section */
+
 .workflow-section {
   margin-bottom: 70px;
 }
@@ -322,7 +322,7 @@ h2::after {
   display: none;
 }
 
-/* Features Section */
+
 .features-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -374,7 +374,7 @@ h2::after {
   font-size: 0.95em;
 }
 
-/* Media Queries for Responsiveness */
+
 @media (max-width: 768px) {
   .workflow-steps {
     flex-direction: column;
@@ -403,7 +403,6 @@ h2::after {
   }
 }
 
-/* ScrapHistory Component Styling */
 .history-section {
   margin-top: 60px;
 }
@@ -468,7 +467,7 @@ h2::after {
   color: white;
 }
 
-/* Subtle animations */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -490,7 +489,7 @@ h2::after {
   animation-delay: 0.3s;
 }
 
-/* For focus accessibility */
+
 button:focus, a:focus {
   outline: 2px solid #2a9d8f;
   outline-offset: 2px;

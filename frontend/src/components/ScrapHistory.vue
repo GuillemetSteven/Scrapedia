@@ -47,24 +47,13 @@ const confirmDelete = (index) => {
 // Fonction pour supprimer un élément de l'historique
 const deleteHistoryItem = () => {
   if (itemToDelete.value !== null) {
-    // Vérifier que la méthode existe avant de l'appeler
-    // Si cette méthode n'existe pas, vous devez l'implémenter dans votre store
+  
     if (typeof scrapStore.removeFromHistory === 'function') {
       scrapStore.removeFromHistory(itemToDelete.value);
     } else {
       // Solution alternative si la méthode n'existe pas
-      // Vous devriez modifier votre store pour ajouter cette méthode
       console.error('La méthode removeFromHistory n\'existe pas dans le store');
-      
-      // Exemple de solution temporaire (à adapter selon votre store)
-      // Ceci est juste un exemple, vous devez adapter selon votre structure de données
-      /* 
-      const updatedHistory = [...history.value];
-      updatedHistory.splice(itemToDelete.value, 1);
-      scrapStore.$patch({
-        scrapHistory: updatedHistory
-      });
-      */
+
     }
     
     showConfirmModal.value = false;
@@ -118,8 +107,8 @@ const closeModal = () => {
     </ul>
   </div>
   
-  <!-- Confirmation modal avec teleport corrigé -->
-  <!-- Remplacez uniquement la partie de la modale dans votre template -->
+  
+  
 <teleport to="body">
   <div v-if="showConfirmModal" class="modal-overlay" @click="closeModal">
     <div class="modal-container" @click.stop>
@@ -148,7 +137,7 @@ const closeModal = () => {
 </template>
 
 <style>
-/* Import des polices Google */
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
 
 .history-container {

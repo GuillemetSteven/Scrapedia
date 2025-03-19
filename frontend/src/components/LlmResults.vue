@@ -349,7 +349,7 @@ h1 {
   align-items: flex-start;
   gap: 6px;
   font-size: 15px;
-  color: #38a169; /* Changed prompt color to green */
+  color: #38a169; 
   font-style: italic;
   margin-bottom: 12px;
   white-space: nowrap;
@@ -362,7 +362,7 @@ h1 {
 .result-prompt .prompt-icon {
   margin-top: 2px;
   flex-shrink: 0;
-  stroke: #38a169; /* Match icon color with text */
+  stroke: #38a169; 
 }
 
 .result-url {
@@ -370,7 +370,7 @@ h1 {
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #3182ce; /* Blue for URL */
+  color: #3182ce;
   word-break: break-all;
 }
 
@@ -464,6 +464,7 @@ h1 {
 </style>
 
 <style>
+
 /* Styles non-scoped pour les éléments téléportés */
 .modal-overlay {
   position: fixed;

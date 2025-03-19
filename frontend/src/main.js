@@ -1,4 +1,3 @@
-// src/main.js
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
@@ -7,12 +6,12 @@ import App from "./App.vue";
 import "./assets/base.css";
 
 // Importation des composants pour les routes
-import Home from "./components/Home.vue"; // Page d'accueil
-import LlmGenerator from "./components/LlmGenerator.vue"; // Composant d'intégration LLM
-import LlmResultDetail from "./components/LlmResultDetail.vue"; // Détail d'une génération
-import LlmResults from "./components/LlmResults.vue"; // Liste des générations
-import Scrap from "./components/Scrap.vue"; // Page de scraping
-import ScrapDetail from "./components/ScrapDetail.vue"; // Visualisation des données scrapées
+import Home from "./components/Home.vue";
+import LlmGenerator from "./components/LlmGenerator.vue";
+import LlmResultDetail from "./components/LlmResultDetail.vue";
+import LlmResults from "./components/LlmResults.vue";
+import Scrap from "./components/Scrap.vue";
+import ScrapDetail from "./components/ScrapDetail.vue";
 
 // Définition des routes
 const routes = [

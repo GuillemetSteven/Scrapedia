@@ -291,7 +291,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Import des polices Google */
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
 
 .scrap-container {

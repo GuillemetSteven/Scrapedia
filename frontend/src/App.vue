@@ -33,7 +33,6 @@ const navigateTo = (path) => {
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
 
-/* Reset and Base Styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -54,7 +53,6 @@ body {
   min-height: 100vh;
 }
 
-/* Header & Navigation */
 .app-header {
   background-color: white;
   padding: 15px 0;
@@ -116,15 +114,6 @@ body {
   width: 70%;
 }
 
-/* Content Area */
-/* .app-content {
-  flex: 1;
-  padding: 40px 20px;
-  background-color: #0867c5;
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-} */
 
 /* Footer */
 .app-footer {
@@ -137,7 +126,7 @@ body {
   box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.03);
 }
 
-/* Common Element Styles */
+
 h1, h2, h3, h4, h5, h6 {
   color: #1d3557;
   margin-bottom: 0.8em;
@@ -149,7 +138,7 @@ p {
   margin-bottom: 1.2em;
 }
 
-/* Button Styles */
+
 .btn {
   display: inline-block;
   font-weight: 500;
@@ -198,7 +187,7 @@ p {
   border-color: #208b7f;
 }
 
-/* Card Styles */
+
 .card {
   position: relative;
   display: flex;
@@ -224,7 +213,7 @@ p {
   padding: 1.8rem;
 }
 
-/* Alert Styles */
+
 .alert {
   position: relative;
   padding: 1rem 1.5rem;
@@ -246,7 +235,7 @@ p {
   border-left: 4px solid #e63946;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 768px) {
   .app-nav {
     flex-wrap: wrap;
@@ -269,7 +258,7 @@ p {
   }
 }
 
-/* Subtle Animations */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -279,7 +268,7 @@ p {
   animation: fadeIn 0.5s ease forwards;
 }
 
-/* For focus accessibility */
+
 button:focus, a:focus {
   outline: 2px solid #2a9d8f;
   outline-offset: 2px;
