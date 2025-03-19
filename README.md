@@ -57,14 +57,69 @@ L'objectif principal de ce projet est de créer une application web qui:
 #### Windows
 
 1. Téléchargez et installez Ollama depuis [https://ollama.com/download/windows](https://ollama.com/download/windows)
-2. Ouvrez une invite de commande et exécutez: `ollama pull phi` ou modèle de votre choix
+2. Ouvrez une invite de commande et exécutez: `ollama run phi` ou modèle de votre choix
 3. Vérifiez que Ollama est en cours d'exécution (icône dans la zone de notification)
 
 #### macOS
 
 1. Téléchargez et installez Ollama depuis [https://ollama.com/download/mac](https://ollama.com/download/mac)
-2. Ouvrez un Terminal et exécutez: `ollama pull phi` ou modèle de votre choix
+2. Ouvrez un Terminal et exécutez: `ollama run phi` ou modèle de votre choix
 3. Vérifiez que Ollama est en cours d'exécution (icône dans la barre de menu)
+
+### Configuration du modèle dans le projet
+
+Dans le fichier `frontend/src/stores/llm.js`, assurez-vous que le nom du modèle correspond exactement à celui que vous avez installé avec Ollama:
+
+```javascript
+ollamaConfig: {
+  baseUrl: "http://localhost:11434",
+  model: "deepseek-r1", // Remplacez par le modèle que vous utilisez :latest peut être nécessaire
+},
+```
+
+Le nom du modèle doit correspondre exactement à celui affiché dans la commande `ollama list`. Voici quelques exemples courants:
+
+- `phi:latest` - Microsoft Phi
+- `deepseek-r1:latest` - DeepSeek Coder R1
+- `llama3:latest` - Llama 3
+- `mistral:latest` - Mistral
+- `gemma:latest` - Gemma
+
+### Dépannage Ollama
+
+Si vous rencontrez des problèmes avec Ollama, voici quelques commandes utiles:
+
+#### Vérifier les modèles installés
+
+```bash
+ollama list
+```
+
+#### Vérifier l'état du serveur Ollama
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+#### Problèmes de connexion refusée
+
+Si vous obtenez une erreur de connexion refusée, vérifiez que:
+
+1. Ollama est bien en cours d'exécution
+2. Le port 11434 n'est pas bloqué par un pare-feu
+3. Vous utilisez bien `http://localhost:11434` comme URL de base
+
+#### Téléchargement d'un nouveau modèle
+
+Si vous souhaitez essayer un modèle différent:
+
+```bash
+ollama pull nom_du_modele:latest
+
+ollama run nom_du_modele fonctionne aussi
+```
+
+N'oubliez pas de mettre à jour le nom du modèle dans votre code après l'installation d'un nouveau modèle.
 
 ### Installation du serveur backend pour le scraping
 
@@ -83,13 +138,13 @@ npm install express puppeteer cors
 3. Naviguez vers le dossier `backend\src` du projet
 
 ```bash
-cd backend\src\
+cd .\src\
 ```
 
 4. Démarrez le serveur
 
 ```bash
- node .\index.js
+node .\index.js
 ```
 
 Le serveur sera disponible sur `http://localhost:3000`
@@ -99,7 +154,8 @@ Le serveur sera disponible sur `http://localhost:3000`
 1. Dans un autre terminal, naviguez vers la racine du projet
 
 ```bash
-cd ..\frontend\
+cd .\frontend\
+
 ```
 
 2. Installez les dépendances
