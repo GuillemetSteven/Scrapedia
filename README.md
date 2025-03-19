@@ -1,7 +1,7 @@
 # Web Scraper & Générateur IA
 
 Ce projet est une application web développée avec Vue.js permettant d'extraire des données de Wikipedia et de générer du nouveau contenu à partir de ces informations via un serveur Ollama local.
-Pour dire vrai, Ce projet a été essentiellement développé avec l'aide de Claude Sonnet. Toutefois, l’objectif est de reproduire progressivement toutes les fonctionnalités essentielles à partir de cette base technique, que j’ai déjà explorée pendant de nombreuses heures, tout en ajoutant de nouvelles fonctionnalités et améliorations à l’avenir.
+Ce projet a été développé avec l'aide de Claude Sonnet. Toutefois, l’objectif est de reproduire progressivement toutes les fonctionnalités essentielles à partir de cette base technique, que j’ai déjà explorée pendant de nombreuses heures, tout en ajoutant de nouvelles fonctionnalités et améliorations à l’avenir.
 
 ## Objectif du projet
 
