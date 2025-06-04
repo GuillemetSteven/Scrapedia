@@ -22,11 +22,11 @@ const paragraphsCount = computed(() => scrapStore.paragraphs.length);
 
 // Exemples de prompts prédéfinis
 const promptExamples = [
-  "Résumez ce contenu en 100 mots",
-  "Extraire les points clés de ce texte",
-  "Générer un article simplifié basé sur ce contenu",
-  "Créer une liste des concepts importants mentionnés",
-  "Réécrivez ce contenu pour un public non spécialisé"
+   "Summarize this content in 100 words",
+   "Extract the key points from this text",
+   "Generate a simplified article based on this content",
+   "Create a list of important concepts mentioned",
+   "Rewrite this content for a non-specialized audience"
 ];
 
 // Fonction pour définir un prompt prédéfini
